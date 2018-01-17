@@ -1,6 +1,6 @@
 # Users, sessions and auth
 
-This ReactQL project demonstrates one possible way you might implement user/password authorisation.
+This ReactQL project demonstrates one possible way you might implement user/password authorization.
 
 It also adds [Passport.js](http://passportjs.org/) with a sample Facebook login.
 
@@ -9,7 +9,7 @@ It also adds [Passport.js](http://passportjs.org/) with a sample Facebook login.
 * User sign-up form, with field validation (email validation via [isemail](https://www.npmjs.com/package/isemail))
 * [Passport.js](http://passportjs.org/) integration
 * User/password and Facebook login
-* In-memory SQLite DB with `users` and `sessions` tables, running via [Sequelize v4](http://docs.sequelizejs.com/)
+* MongoDB with `users` and `sessions` collections, using Mongoose schemas
 * Server-side sessions. Deleting the DB entry remotely kills the session
 * Password hashing via [bcrypt](https://www.npmjs.com/package/bcrypt)
 * GraphQL types representing users, sessions, [JWT tokens](https://www.npmjs.com/package/jsonwebtoken), field errors

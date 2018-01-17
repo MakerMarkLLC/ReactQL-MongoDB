@@ -1,4 +1,5 @@
 /* eslint-disable import/prefer-default-export, no-param-reassign */
+/* eslint  no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
 // Session table
 
@@ -7,10 +8,7 @@
 
 /* NPM */
 
-// Sequelize library -- http://docs.sequelizejs.com/
-import Sequelize from 'sequelize';
-
-// E-mail validation
+import mongoose from 'mongoose';
 import isEmail from 'isemail';
 
 /* Local */
@@ -22,45 +20,45 @@ import { checkPassword, encodeJWT, decodeJWT } from 'src/lib/hash';
 import FormError from 'src/lib/error';
 
 // DB
-import db from './index';
+
 import { User } from './user';
 
 // ----------------------
 
-// Define `User` object/table.
-export const Session = db.define('session', {
-  id: {
-    type: Sequelize.UUID,
-    primaryKey: true,
-    defaultValue: Sequelize.UUIDV4,
-  },
-  expiresAt: {
-    type: Sequelize.DATE,
-    allowNull: false,
-  },
-}, {
-  hooks: {
-    beforeValidate(inst) {
-      // Set expiration to be 30 days from now
-      const now = new Date();
-      now.setDate(now.getDate() + 30);
-      inst.expiresAt = now;
-    },
-  },
+// Define `Session` object.
+const Schema = mongoose.Schema;
+const sessionSchema = new Schema({
+  id: Schema.Types.ObjectId,
+  userId: Schema.Types.ObjectId,
+  expiresAt: Date,
+  token: String,
 });
 
-// Add in JWT support on sessions
-Session.prototype.jwt = function jwt() {
-  return encodeJWT({
-    id: this.id,
-  });
-};
+export const Session = mongoose.model('session', sessionSchema);
+
+// return User associated with Session
+Session.prototype.getUser = session => User.findOne({ id: session.userId });
+
 
 // Create a new session.  Accepts a loaded user instance, and returns a
 // new session object
 export async function createSession(user) {
-  return Session.create({
+  const session = new Session({
     userId: user.id,
+  });
+
+  const now = new Date();
+  now.setDate(now.getDate() + 30);
+
+  session.id = session._id;
+  session.expiresAt = now;
+  session.token = encodeJWT({ id: session.id });
+
+  return new Promise((resolve, reject) => {
+    session.save(err => {
+      if (err) reject(err);
+      else resolve(session);
+    });
   });
 }
 
@@ -114,11 +112,7 @@ export async function login(data) {
   e.throwIf();
 
   // Attempt to find the user based on the e-mail address
-  const user = await User.findOne({
-    where: {
-      email: data.email,
-    },
-  });
+  const user = await User.findOne({ email: data.email });
 
   // If we don't have a valid user, throw.
   if (!user) {

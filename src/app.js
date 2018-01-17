@@ -29,18 +29,15 @@ config.enableGraphQLServer();
 if (SERVER) {
   /* DATABASE */
 
-  // In this demo app, we're using a SQLite database to build two tables --
-  //
-  // 1. `users` = to hold an e-mail, password and name of our sample website users
-  // 2. `sessions` = to store session data server-side, so that we can check
-  // whether a user is logged in, and expire sessions remotely
-  //
+  require('src/db/index');
+
   // By importing `src/db/fixtures`, this will init the DB on the server and
   // insert a couple of sample users
+
   require('src/db/fixtures');
 
   // Connect relationships between tables
-  require('src/db/relationships');
+  // require('src/db/relationships');
 
   /* GRAPHQL */
 

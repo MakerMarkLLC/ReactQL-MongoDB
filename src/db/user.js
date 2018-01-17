@@ -1,16 +1,8 @@
-/* eslint-disable import/prefer-default-export */
+/* eslint-disable import/prefer-default-export  no-underscore-dangle */
+/* eslint  no-underscore-dangle: ["error", { "allow": ["_id"] }] */
 
-// User table
+import mongoose from 'mongoose';
 
-// ----------------------
-// IMPORTS
-
-/* NPM */
-
-// Sequelize library -- http://docs.sequelizejs.com/
-import Sequelize from 'sequelize';
-
-// E-mail validation
 import isEmail from 'isemail';
 
 /* Local */
@@ -21,43 +13,20 @@ import { generatePasswordHash } from 'src/lib/hash';
 // Error handler
 import FormError from 'src/lib/error';
 
-// DB
-import db from './index';
-
 // ----------------------
 
-// Define `User` object/table.
-export const User = db.define('user', {
-  id: {
-    type: Sequelize.UUID,
-    primaryKey: true,
-    defaultValue: Sequelize.UUIDV4,
-  },
-  email: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    validate: {
-      isEmail: true,
-      len: [2, 512],
-    },
-  },
-  password: {
-    type: Sequelize.TEXT,
-    allowNull: true,
-  },
-  firstName: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    len: [2, 32],
-    isAlphanumeric: true,
-  },
-  lastName: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    len: [2, 32],
-    isAlphanumeric: true,
-  },
+const Schema = mongoose.Schema;
+
+// Define `User` object.
+const userSchema = new Schema({
+  id: Schema.Types.ObjectId,
+  email: { type: String, unique: true, lowercase: true },
+  password: String,
+  firstName: String,
+  lastName: String,
 });
+
+export const User = mongoose.model('user', userSchema);
 
 // Create user function.  This will return a Promise that resolves with the
 // `user` instance
@@ -74,7 +43,7 @@ export async function createUser(data) {
     e.set('email', 'Please enter a valid e-mail.');
 
     // Check that the e-mail isn't already taken
-  } else if (await User.findOne({ where: { email: data.email } })) {
+  } else if (await User.findOne({ email: data.email })) {
     e.set('email', 'Your e-mail belongs to another account. Please login instead.');
   }
 
@@ -103,11 +72,20 @@ export async function createUser(data) {
   e.throwIf();
 
   // All good - proceed
-  return User.create({
+  const user = new User({
     email: data.email,
     password: await generatePasswordHash(data.password),
     firstName: data.firstName,
     lastName: data.lastName,
+  });
+
+  user.id = user._id;
+
+  return new Promise((resolve, reject) => {
+    user.save(err => {
+      if (err) reject(err);
+      else resolve(user);
+    });
   });
 }
 
@@ -118,21 +96,26 @@ export async function createUser(data) {
 // login via the traditional username + password
 export async function createUserFromSocial(data) {
   // Check if we have an existing user
-  const existingUser = await User.findOne({
-    where: {
-      email: data.email,
-    },
-  });
+  const existingUser = await User.findOne({ email: data.email });
 
   if (existingUser) return existingUser;
 
   // Nope -- let's create one
 
   // All good - proceed
-  return User.create({
+  const user = new User({
     email: data.email,
     password: null,
     firstName: data.firstName,
     lastName: data.lastName,
+  });
+
+  user.id = user._id;
+
+  return new Promise((resolve, reject) => {
+    user.save(err => {
+      if (err) reject(err);
+      else resolve(user);
+    });
   });
 }

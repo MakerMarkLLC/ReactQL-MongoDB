@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "server": "node dist/server",
     "server-dev": "cross-env NODE_ENV=development WEBPACK_CONFIG=server_dev webpack --colors",
-    "start": "run-p browser server-dev",
+    "start": "run-p server-dev browser",
     "static": "serve -s dist/public",
     "test": "jest"
   },
@@ -98,6 +98,7 @@
     "koa-send": "^4.1.0",
     "koa-sslify": "^2.1.2",
     "microseconds": "^0.1.0",
+    "mongoose": "^4.13.9",
     "passport-facebook": "^2.1.1",
     "prop-types": "^15.5.10",
     "react": "^16.0.0-rc.2",
@@ -113,9 +114,7 @@
     "regenerator-runtime": "^0.11.0",
     "seamless-immutable": "^7.1.2",
     "semantic-ui-css": "^2.2.12",
-    "semantic-ui-react": "^0.71.4",
-    "sequelize": "^4.5.0",
-    "sqlite3": "^3.1.8"
+    "semantic-ui-react": "^0.77.2"
   },
   "engines": {
     "node": ">=7",

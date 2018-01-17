@@ -49,13 +49,13 @@ export const SessionType = new GraphQLObjectType({
       jwt: {
         type: GraphQLString,
         resolve(obj) {
-          return obj.session && obj.session.jwt();
+          return obj.session && obj.session.token;
         },
       },
       user: {
         type: UserType,
         resolve(obj) {
-          return obj.session && obj.session.getUser();
+          return obj.session && obj.session.getUser(obj.session);
         },
       },
     };
@@ -80,7 +80,7 @@ export const loginMutation = {
       // If getting the JWT didn't throw, then we know we have a valid
       // JWT -- store it on a cookie so that we can re-use it for future
       // requests to the server
-      ctx.cookies.set('reactQLJWT', session.jwt(), {
+      ctx.cookies.set('reactQLJWT', session.token, {
         expires: session.expiresAt,
       });
 

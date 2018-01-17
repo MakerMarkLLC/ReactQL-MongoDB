@@ -108,7 +108,7 @@ if (SERVER) {
       // Attach a GraphiQL IDE endpoint to our server?  By default - no.  If
       // this === true, this will default to `/graphql`.  If it's a string, it'll
       // default to the string value
-      this.graphiQL = false;
+      this.graphiQL = true;
 
       // Enable body parsing by default.  Leave `koa-bodyparser` opts as default
       this.enableBodyParser = true;

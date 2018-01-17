@@ -66,7 +66,7 @@ const Query = new GraphQLObjectType({
       users: {
         type: new GraphQLList(UserType),
         resolve() {
-          return User.findAll();
+          return User.find({});
         },
       },
     };
